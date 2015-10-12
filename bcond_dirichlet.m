@@ -1,4 +1,4 @@
-function [u, b, freeNode] = bcond_dirichlet(A,Dirichlet,activeNode, node, gd_filename)
+function [u, b, freeNode, bdNode] = bcond_dirichlet(A,Dirichlet,activeNode, node, gd_filename)
 g_D = str2func(gd_filename);
 N = size(A,1);
 b = zeros(N,1);

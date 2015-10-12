@@ -1,6 +1,6 @@
-function [Cnode, Celem, has_node_i, bnd_node] =  fem2d_init_tri(elem,nnode)
+function [Cnode, Celem, has_node_i, bndry_nodes, nb_nodes] =  fem2d_init_tri(elem,nnode)
 nelem = size(elem,1);
-bnd_node = zeros(nnode,1);
+bndry_nodes = zeros(nnode,1);
 totalEdge = [elem(:,[2,3]); elem(:,[3,1]); elem(:,[1,2])];
 has_node_i = zeros(nnode,8);
 has_node_i_size = zeros(nnode,1);
@@ -26,6 +26,11 @@ has_node_i = [has_node_i_size has_node_i];
 % The matrix entries are the element that contains edge between two nodes. 
 Cnode = sparse(totalEdge(:,1),totalEdge(:,2),[1:nelem 1:nelem 1:nelem]',nnode,nnode);
 
+nb_nodes = cell(nnode,1);
+for i = 1 : nnode
+    nb_nodes{i} = find(Cnode(:,i));
+end
+
 % Celem is a cennectivity matrix between elements. If two elements share an
 % edge then the corresponding values in Celem is an index of that edge.
 icelem = zeros(3*nelem,1);
@@ -40,8 +45,8 @@ for i = 1 : 3*nelem
     
     temp = Cnode(col,row);
     if temp == 0
-        bnd_node(row) = 1;
-        bnd_node(col) = 1;
+        bndry_nodes(row) = 1;
+        bndry_nodes(col) = 1;
     else
         icelem(celem_index) = Cnode(row,col);
         jcelem(celem_index) = temp;
@@ -52,4 +57,4 @@ for i = 1 : 3*nelem
 end
 celem_index = celem_index - 1;
 Celem = sparse(icelem(1:celem_index),jcelem(1:celem_index),kcelem(1:celem_index),nelem,nelem);
-bnd_node = sparse(bnd_node);
+bndry_nodes = sparse(bndry_nodes);
